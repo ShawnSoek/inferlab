@@ -25,7 +25,7 @@ def ml_estimate(data, distribution_assumption):
         "poisson":     (stats.poisson.logpmf, [1], [(1e-9, None)]),
         "normal":      (stats.norm.logpdf,    [0, 1], [(None, None), (1e-9, None)]),
         "exponential": (lambda data, rate: stats.expon.logpdf(data, scale=1/rate), [1], [(1e-9, None)]),
-        "geometric":   (stats.geom.logpmf,    [0.5], [(1e-9, 1 - 1e-9)]),
+        "geometric":   (lambda data, p: stats.geom.logpmf(data, p, loc=-1),    [0.5], [(1e-9, 1 - 1e-9)]),
         "binomial":    (lambda data, p, n: stats.binom.logpmf(data, n, p), [0.5], [(1e-9, 1 - 1e-9)]),
     }
 
