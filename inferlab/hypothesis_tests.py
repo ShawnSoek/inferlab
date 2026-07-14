@@ -152,3 +152,137 @@ def likelihood_ratio_test(data, distribution_assumption, params_h0):
     df = len(params_h0)
 
     return w, p_value(w, stats.chi2(df=df), alternative="greater")
+
+def two_sample_t_test(mean1, s1, n1, mean2, s2, n2, alternative="two_sided"):
+    """
+    Two-sample t-test for equal means, assuming equal (unknown) variances.
+
+    Pools the two sample variances into a single estimate, weighted by their
+    degrees of freedom. Requires the equal-variance assumption.
+
+    Parameters
+    ----------
+    mean1, mean2 : float
+        Sample means of the two groups.
+    s1, s2 : float
+        Sample standard deviations (ddof=1) of the two groups.
+    n1, n2 : int
+        Sample sizes of the two groups.
+    alternative : str
+        One of "two_sided", "greater", "less".
+
+    Returns
+    -------
+    tuple of float
+        (test statistic, p-value).
+    """
+    pooled_variance = ((n1 - 1) * s1**2 + (n2 - 1) * s2**2) / (n1 + n2 - 2)
+    standard_error = np.sqrt(pooled_variance * (1 / n1 + 1 / n2))
+
+    t = (mean1 - mean2) / standard_error
+    df = n1 + n2 - 2
+
+    return t, p_value(t, stats.t(df=df), alternative)
+
+
+def welch_test(mean1, s1, n1, mean2, s2, n2, alternative="two_sided"):
+    """
+    Welch's t-test for equal means without assuming equal variances.
+
+    Does not pool the variances. The degrees of freedom are approximated by the
+    Welch-Satterthwaite equation and are generally not an integer.
+
+    Parameters
+    ----------
+    mean1, mean2 : float
+        Sample means of the two groups.
+    s1, s2 : float
+        Sample standard deviations (ddof=1) of the two groups.
+    n1, n2 : int
+        Sample sizes of the two groups.
+    alternative : str
+        One of "two_sided", "greater", "less".
+
+    Returns
+    -------
+    tuple of float
+        (test statistic, p-value).
+    """
+    variance1 = s1**2 / n1
+    variance2 = s2**2 / n2
+    standard_error = np.sqrt(variance1 + variance2)
+
+    t = (mean1 - mean2) / standard_error
+
+    # Welch-Satterthwaite approximation
+    numerator = (variance1 + variance2) ** 2
+    denominator = variance1**2 / (n1 - 1) + variance2**2 / (n2 - 1)
+    df = numerator / denominator
+
+    return t, p_value(t, stats.t(df=df), alternative)
+
+
+def f_test(s1, n1, s2, n2, alternative="two_sided"):
+    """
+    F-test for the equality of two variances.
+
+    The test statistic is the ratio of the two sample variances. 
+    Can be used to check whether the equal-variance assumption
+    is justified.
+
+    Parameters
+    ----------
+    s1, s2 : float
+        Sample standard deviations (ddof=1) of the two groups.
+    n1, n2 : int
+        Sample sizes of the two groups.
+    alternative : str
+        One of "two_sided", "greater", "less".
+
+    Returns
+    -------
+    tuple of float
+        (test statistic, p-value).
+    """
+    f = s1**2 / s2**2
+    return f, p_value(f, stats.f(dfn=n1 - 1, dfd=n2 - 1), alternative)
+
+
+def paired_t_test(x, y, alternative="two_sided"):
+    """
+    Paired t-test for dependent samples.
+
+    Reduces to a one-sample t-test on the pairwise differences against mu0 = 0.
+
+    Parameters
+    ----------
+    x, y : np.ndarray
+        Paired observations. Must have the same length.
+    alternative : str
+        One of "two_sided", "greater", "less".
+
+    Returns
+    -------
+    tuple of float
+        (test statistic, p-value).
+
+    Raises
+    ------
+    ValueError
+        If x and y have different lengths.
+    """
+    x = np.asarray(x)
+    y = np.asarray(y)
+
+    if len(x) != len(y):
+        raise ValueError(
+            f"Paired samples must have equal length, got {len(x)} and {len(y)}."
+        )
+
+    differences = x - y
+
+    return t_test(mean=np.mean(differences), mu0=0,
+        s=np.std(differences, ddof=1),
+        n=len(differences),
+        alternative=alternative,
+    )
