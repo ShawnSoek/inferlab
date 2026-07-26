@@ -41,7 +41,7 @@ def load_rutherford(format: str = "table"):
         If format is not 'table' or 'raw'.
     """
 
-    table = {0: 57, 1: 203, 2: 383, 3: 525, 4: 532, 5: 408, 6: 273, 7: 139, 8: 45, 9: 27, 10: 10, 11: 6}
+    table = {0: 57, 1: 203, 2: 383, 3: 525, 4: 532, 5: 408, 6: 273, 7: 139, 8: 45, 9: 27, 10: 10, 11: 4, 12: 0, 13: 1, 14: 1}
 
     raw = np.repeat(np.array(list(table.keys())), np.array(list(table.values())))
 
@@ -91,4 +91,22 @@ def load_reactiontime():
     group1 = ReactionTimeModel(group_size=32, mu=585.2, sigma=89.6)
     group2 = ReactionTimeModel(group_size=32, mu=533.7, sigma=65.3)
     return group1, group2
+
+def load_ptca():
+    """
+    2x2 contingency table for percutaneous transluminal coronary
+    angioplasty (PTCA) outcomes, by prior myocardial infarction status.
+
+    Rows: prior myocardial infarction (yes / no)
+    Columns: PTCA successful (yes / no)
+
+        [[35, 13],   <- prior MI:    35 successful, 13 not successful
+         [76,  7]]   <- no prior MI: 76 successful,  7 not successful
+
+    Returns
+    -------
+    np.ndarray
+        2x2 array of observed frequencies.
+    """
+    return np.array([[35, 13], [76, 7]])
 
