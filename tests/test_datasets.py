@@ -18,7 +18,7 @@ def test_load_rutherford():
     assert np.mean(raw_data) == approx(3.87, rel=1e-3)
     assert table_data[0] == 57
     assert table_data[5] == 408
-    assert table_data[11] == 6
+    assert table_data[11] == 4
     assert sum(table_data.values()) == 2608
     with pytest.raises(ValueError):
         load_rutherford("abc")
