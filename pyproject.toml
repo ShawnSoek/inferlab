@@ -8,8 +8,11 @@ version = "0.1.0"
 description = "Inferenzstatistik-Bibliothek zur Vorlesung Statistik WS 2025/26"
 requires-python = ">=3.10"
 dependencies = [
+    "matplotlib>=3.10.9",
     "numpy>=1.24",
+    "pytest>=9.2.0",
     "scipy>=1.10",
+    "statsmodels>=0.15.0",
 ]
 
 [project.optional-dependencies]
